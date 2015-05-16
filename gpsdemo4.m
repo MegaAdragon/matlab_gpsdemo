@@ -8,17 +8,32 @@ S4 = [0.30, 6.11];
 
 T = zeros(1,4);
 [z,Fs] = audioread('Testaufnahme1.wav');
-for i=1:4
-    
+t = (0:length(z)-1)/Fs;
+subplot(4,2,[1,2]);
+plot(t,z); xlabel('Seconds'); ylabel('Amplitude'); title('Mikrofonsignal');
+z=[z;z];
+
+color = ['r-'; 'b-'; 'g-'; 'y-'];
+
+for i=1:4    
     N = length(S(:,i));
-    c = xcov(z,S(:,i));
+    c = corr(z,S(:,i));
     c=abs(c);
-    time =(0:N-1)/Fs;
-    plot(time, c(1:N))
+    time =(0:N-1)/Fs;    
     c = c(1:N);
-    [y,x] = max(c);
+    subplot(4,2,i+2);
+    plot(time,c , color(i,:)); title(strcat('Korrelation', num2str(i)));
+    [y,x] = max(c); 
     T(i)=time(x);
 end
+
+offset = 250;
+subplot(4,2,[7,8]);
+plot(time(1:offset), S(1:offset,4)); title('Auschnitt Signale');
+hold on;
+plot(time(1:offset), z(x:x+offset-1,1)*15+0.5)
+hold off;
+
 
 P = T.*343;
 
@@ -37,6 +52,8 @@ for i=1:10
     x = x+ E(1);
     y = y+ E(2);
 end
+
+Karte([x,y])
 
 x
 y
